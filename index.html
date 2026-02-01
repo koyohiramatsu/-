@@ -1,0 +1,429 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Calendar, Clock, Video, CreditCard, 
+  CheckCircle, AlertCircle, ArrowRight, 
+  User, HelpCircle, FileText, Moon, Sun, 
+  ChevronRight, Laptop, Mail, Send, MessageSquare,
+  Building, MapPin
+} from 'lucide-react';
+
+const App = () => {
+  // テーマ管理用のState
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showFloatingBtn, setShowFloatingBtn] = useState(false);
+  
+  // フォーム管理用State
+  const [formStatus, setFormStatus] = useState('idle'); // idle, submitting, success
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+  // スクロール監視（フローティングボタン用）
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowFloatingBtn(window.scrollY > 500);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // テーマ切り替え
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
+  // 入力ハンドラ
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // フォーム送信処理（メール送信シミュレーション）
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setFormStatus('submitting');
+
+    // 実際のメール送信処理の代わりにコンソールに出力してシミュレーション
+    // 1. 自動返信メールのシミュレーション
+    const autoReplyMail = `
+---------- [メール送信シミュレーション：自動返信] ----------
+To: ${formData.email}
+Subject: 講座お申し込みの確認（自動返信メール）
+
+${formData.name} 様
+
+この度は本講座にお申し込みいただきありがとうございます。
+こちらは自動返信メールです。
+申し込み内容を確認して改めてお申し込み確認メールをお送りいたします。
+２営業日経っても連絡がない場合は迷惑メールに入っている可能性もありますのでご確認をお願いいたします。
+迷惑メールを確認してもメールがない場合は
+info@apai.jp
+こちらまでお問い合わせください。
+
+お申し込み内容
+講座名:「独立開業スタートアップ講座独立するなら知っておきたい開業届と青色申告」
+名前:${formData.name}　様
+メールアドレス:${formData.email}
+お問い合わせ:${formData.message}
+
+上記内容に相違がある場合などは下記までお知らせください。
+
+運営会社
+一般社団法人エアコン取付工事士協会
+125-0035　東京都葛飾区南水元2-17-2
+info@apai.jp
+--------------------------------------------------------
+    `;
+
+    // 2. 運営通知メールのシミュレーション
+    const adminNotificationMail = `
+---------- [メール送信シミュレーション：運営通知] ----------
+To: info@apai.jp
+Subject: 講座お申し込み
+
+下記お客様より講座のお申し込みがありました。
+
+講座名:「独立開業スタートアップ講座独立するなら知っておきたい開業届と青色申告」
+名前:${formData.name}　様
+メールアドレス:${formData.email}
+お問い合わせ:${formData.message}
+
+確認いただきお申し込み者様にメールをお願いいたします。
+--------------------------------------------------------
+    `;
+
+    console.log(autoReplyMail);
+    console.log(adminNotificationMail);
+
+    // 送信完了状態へ（少し遅延させてローディング感を出す）
+    setTimeout(() => {
+      setFormStatus('success');
+      // フォームをリセットする場合は以下を有効化
+      // setFormData({ name: '', email: '', message: '' });
+    }, 1500);
+  };
+
+  // 共通クラス
+  const theme = {
+    bg: isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-800',
+    header: isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/80 border-slate-200',
+    card: isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm',
+    input: isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:ring-red-500' : 'bg-white border-slate-300 text-slate-900 focus:ring-red-500',
+    muted: isDarkMode ? 'text-slate-400' : 'text-slate-600',
+    accent: 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30',
+  };
+
+  return (
+    <div className={`min-h-screen transition-colors duration-500 font-sans ${theme.bg}`}>
+      
+      {/* Header */}
+      <header className={`fixed w-full top-0 z-50 backdrop-blur-md border-b transition-all duration-300 ${theme.header}`}>
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="font-bold text-xl tracking-tight flex items-center gap-2">
+            <span className={`p-1.5 rounded-lg ${isDarkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-600 text-white'}`}>
+              <Laptop size={20} />
+            </span>
+            <span className={isDarkMode ? 'text-white' : 'text-slate-900'}>StartUp<span className="text-red-500">.Tax</span></span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={toggleTheme}
+              className={`p-2 rounded-full transition-all duration-300 ${isDarkMode ? 'bg-slate-800 text-yellow-400' : 'bg-slate-200 text-slate-600'}`}
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <a href="#apply" className={`hidden sm:flex px-6 py-2 rounded-full font-bold text-sm transition-all active:scale-95 ${theme.accent}`}>
+              無料相談・申込
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* Floating Action Button */}
+      <div className={`fixed bottom-8 right-8 z-50 transition-all duration-500 transform ${showFloatingBtn ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}>
+        <a href="#apply" className={`flex items-center gap-2 px-6 py-4 rounded-full font-bold shadow-2xl animate-bounce hover:animate-none ${theme.accent}`}>
+          今すぐ申し込む <ArrowRight size={18} />
+        </a>
+      </div>
+
+      {/* 0. Hero Section */}
+      <section className="pt-32 pb-20 px-6 relative overflow-hidden">
+        <div className={`absolute top-0 right-0 w-96 h-96 rounded-full filter blur-[120px] opacity-10 ${isDarkMode ? 'bg-blue-500' : 'bg-blue-400'}`}></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className={`inline-block py-1.5 px-4 rounded-full text-xs font-bold tracking-widest mb-8 border transition-colors ${isDarkMode ? 'bg-slate-900 border-slate-700 text-blue-400' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
+            2026.2.5 (木) 10:00-12:00 | ONLINE
+          </div>
+          <h1 className="text-4xl md:text-7xl font-black mb-8 leading-[1.15] tracking-tight">
+            独立するなら知っておきたい<br />
+            {/* 開業届を赤字、青色申告を青字に変更 */}
+            <span className="text-red-500">開業届</span>と<span className={isDarkMode ? 'text-blue-400' : 'text-blue-600'}>青色申告</span>
+          </h1>
+          <p className={`text-lg md:text-2xl mb-12 max-w-2xl mx-auto leading-relaxed font-medium ${theme.muted}`}>
+            バックオフィス業務の「わからない」をプロが解消。<br className="hidden md:block" />
+            2時間で、あなたの事業を加速させる知識を。
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="#apply" className={`px-10 py-5 rounded-xl text-xl font-black transition-all transform hover:scale-105 ${theme.accent}`}>
+              講座に申し込む
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 1. Problem Section (P) */}
+      <section className={`py-24 px-6 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div className="relative order-2 md:order-1">
+            <div className="absolute -inset-4 bg-red-500/10 rounded-3xl blur-2xl"></div>
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/10">
+              <img 
+                src="https://images.unsplash.com/photo-1517026575992-5e11d957d079?auto=format&fit=crop&q=80&w=800" 
+                alt="書類に悩む男性" 
+                className="w-full h-full object-cover grayscale-[0.2]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
+                <p className="text-white font-bold flex items-center gap-2">
+                  <AlertCircle className="text-red-500" /> 何から始めればいいのか、わからない...
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="order-1 md:order-2">
+            <h2 className="text-3xl md:text-5xl font-black mb-8 leading-tight">
+              「何から始めればいい？」<br />
+              その不安、<span className="text-red-500">放置していませんか？</span>
+            </h2>
+            <p className={`text-lg mb-8 leading-relaxed ${theme.muted}`}>
+              独立を決めた瞬間に押し寄せる、書類と手続きの山。
+              「開業届はいつ出すの？」「青色申告ってどうやるの？」といった疑問を抱えたままでは、肝心の事業に集中できません。
+            </p>
+            <div className={`p-6 rounded-2xl border-l-8 border-red-500 ${isDarkMode ? 'bg-slate-800' : 'bg-slate-50'}`}>
+              <p className="font-bold text-lg mb-2">放置することのリスク</p>
+              <p className={theme.muted}>
+                最大65万円の控除を逃したり、本来支払う必要のない税金を払ってしまうなど、無知による損失は後から取り返せません。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Affinity Section (A) */}
+      <section className="py-24 px-6">
+        <div className={`max-w-4xl mx-auto text-center p-12 rounded-[2rem] border-2 border-dashed ${isDarkMode ? 'border-slate-800 bg-slate-900/50' : 'border-slate-300 bg-white/50'}`}>
+          <HelpCircle size={48} className="mx-auto text-blue-500 mb-8" />
+          <h2 className="text-3xl font-bold mb-6">みんな最初は「書類アレルギー」です。</h2>
+          <p className={`text-xl leading-relaxed max-w-2xl mx-auto ${theme.muted}`}>
+            あなただけではありません。多くの起業家が同じ道で悩み、つまずいています。<br />
+            難しい法律用語を並べるのではなく、実務に即した「本当に必要なこと」だけを、シンプルにお伝えします。
+          </p>
+        </div>
+      </section>
+
+      {/* 3. Solution Section (S) */}
+      <section className={`py-24 px-6 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black mb-4">2時間で「税務の基本」をマスター。</h2>
+            <p className={theme.muted}>プロの税理士が、あなたの疑問をクリアにします。</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className={`p-10 rounded-3xl border hover:border-blue-500 transition-all group ${theme.card}`}>
+              <FileText className="text-blue-500 mb-6 group-hover:scale-110 transition-transform" size={40} />
+              <h3 className="text-2xl font-bold mb-4">開業届の正しい書き方</h3>
+              <p className={theme.muted}>タイミング、提出先、具体的な項目。これさえ聞けば、迷わず提出できるレベルまでレクチャーします。</p>
+            </div>
+            <div className={`p-10 rounded-3xl border hover:border-red-500 transition-all group ${theme.card}`}>
+              <CheckCircle className="text-red-500 mb-6 group-hover:scale-110 transition-transform" size={40} />
+              <h3 className="text-2xl font-bold mb-4">青色申告の仕組みと節税</h3>
+              <p className={theme.muted}>メリットから帳簿の付け方まで。最大65万円の控除を確実に受けるためのポイントを凝縮して解説します。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Instructor & Offer (O) */}
+      <section className="py-24 px-6 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className={`grid md:grid-cols-5 gap-0 rounded-[2.5rem] overflow-hidden shadow-2xl border ${theme.card}`}>
+            <div className={`md:col-span-2 bg-gradient-to-br from-slate-200 to-slate-300 relative min-h-[400px]`}>
+              <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                <User size={200} />
+              </div>
+              <div className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur p-6 rounded-2xl shadow-xl">
+                 <p className="text-blue-600 font-black text-xs uppercase tracking-widest mb-1">講師紹介</p>
+                 <h3 className="text-2xl font-black text-slate-900">川崎 涼子 <span className="text-sm font-normal text-slate-500">さん</span></h3>
+                 <p className="text-slate-600 text-sm mt-1">税理士 / 独立開業支援アドバイザー</p>
+              </div>
+            </div>
+            <div className="md:col-span-3 p-10 md:p-16 flex flex-col justify-center">
+              <h2 className="text-3xl font-bold mb-8 italic text-red-500">「難しい税金の話を、<br className="sm:hidden" />世界一わかりやすく」</h2>
+              <p className={`text-lg mb-10 leading-relaxed ${theme.muted}`}>
+                開業準備でお忙しい皆さんの貴重な2時間を無駄にはしません。
+                専門用語を極限まで削ぎ落とし、今日から実践できる内容をお届けします。
+              </p>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 py-3 border-b border-slate-200/20">
+                  <Calendar className="text-blue-500" size={20} />
+                  <span className="font-bold text-lg">2026.2.5 (木) 10:00〜12:00</span>
+                </div>
+                <div className="flex items-center gap-4 py-3 border-b border-slate-200/20">
+                  <CreditCard className="text-blue-500" size={20} />
+                  <span className="font-bold text-lg">受講料：2,000円</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Registration Form */}
+      <section id="apply" className={`py-24 px-6 ${isDarkMode ? 'bg-slate-900' : 'bg-slate-50'}`}>
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-black mb-4">お申し込み・お問い合わせ</h2>
+            <p className={theme.muted}>以下のフォームより必要事項をご入力ください。</p>
+          </div>
+
+          <div className={`p-8 md:p-12 rounded-3xl border shadow-xl ${theme.card}`}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold mb-2 flex items-center gap-2">
+                  <User size={16} /> お名前 <span className="text-red-500 text-xs font-normal">必須</span>
+                </label>
+                <input 
+                  required
+                  type="text" 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="例：山田 太郎"
+                  disabled={formStatus === 'success'}
+                  className={`w-full px-5 py-4 rounded-xl outline-none border transition-all ${theme.input} ${formStatus === 'success' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold mb-2 flex items-center gap-2">
+                  <Mail size={16} /> メールアドレス <span className="text-red-500 text-xs font-normal">必須</span>
+                </label>
+                <input 
+                  required
+                  type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="example@mail.com"
+                  disabled={formStatus === 'success'}
+                  className={`w-full px-5 py-4 rounded-xl outline-none border transition-all ${theme.input} ${formStatus === 'success' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-2 flex items-center gap-2">
+                  <MessageSquare size={16} /> お問い合わせ・ご質問
+                </label>
+                <textarea 
+                  rows="4"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  placeholder="講座へのご質問などあればご記入ください"
+                  disabled={formStatus === 'success'}
+                  className={`w-full px-5 py-4 rounded-xl outline-none border transition-all ${theme.input} ${formStatus === 'success' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                ></textarea>
+              </div>
+
+              <button 
+                type="submit"
+                disabled={formStatus !== 'idle'}
+                className={`w-full py-5 rounded-xl font-black text-xl flex items-center justify-center gap-3 transition-all transform active:scale-[0.98] 
+                  ${formStatus === 'success' 
+                    ? 'bg-green-600 text-white cursor-default' 
+                    : formStatus === 'submitting'
+                      ? 'bg-slate-400 cursor-wait'
+                      : theme.accent
+                  }`}
+              >
+                {formStatus === 'idle' && <><Send size={20} /> 送信して申し込む</>}
+                {formStatus === 'submitting' && '送信中...'}
+                {formStatus === 'success' && <><CheckCircle size={20} /> 送信完了</>}
+              </button>
+
+              {/* 送信完了後のメッセージ表示エリア */}
+              {formStatus === 'success' && (
+                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-fade-in">
+                  <p className="text-red-600 font-bold text-center leading-relaxed">
+                    ありがとうございます。自動返信メールをお送りいたしました。<br/>
+                    届いていない場合は迷惑メールフォルダをご確認ください。
+                  </p>
+                </div>
+              )}
+
+              <p className="text-center text-xs opacity-50">
+                送信いただく個人情報は本講座の運営目的にのみ使用いたします。
+              </p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Company Info Section */}
+      <section className={`py-16 px-6 ${isDarkMode ? 'bg-slate-900 border-t border-slate-800' : 'bg-slate-200'}`}>
+        <div className="max-w-4xl mx-auto">
+          <div className={`p-8 md:p-10 rounded-2xl ${isDarkMode ? 'bg-slate-800' : 'bg-white'} shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-8`}>
+            <div>
+              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">運営会社</h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Building size={20} className="text-blue-500 mt-1 shrink-0" />
+                  <div>
+                    <p className="font-bold text-lg">一般社団法人エアコン取付工事士協会</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <MapPin size={20} className="text-blue-500 mt-1 shrink-0" />
+                  <p className={theme.muted}>〒125-0035 東京都葛飾区南水元2-17-2</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Mail size={20} className="text-blue-500 shrink-0" />
+                  <a href="mailto:info@apai.jp" className="hover:text-blue-500 transition-colors">info@apai.jp</a>
+                </div>
+              </div>
+            </div>
+            
+            {/* ロゴの代わり、またはアクセントとしてアイコン表示 */}
+            <div className={`hidden md:flex w-24 h-24 rounded-full items-center justify-center ${isDarkMode ? 'bg-slate-700' : 'bg-slate-100'}`}>
+              <Building size={40} className="text-slate-400" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className={`py-12 border-t ${isDarkMode ? 'bg-slate-950 border-slate-900 text-slate-500' : 'bg-white border-slate-200 text-slate-400'}`}>
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <div className="font-bold text-lg mb-6 flex justify-center items-center gap-2">
+            <span className={`p-1 rounded ${isDarkMode ? 'bg-blue-900 text-blue-300' : 'bg-blue-600 text-white'}`}>
+              <Laptop size={16} />
+            </span>
+            <span className={isDarkMode ? 'text-slate-300' : 'text-slate-900'}>StartUp<span className="text-red-500">.Tax</span></span>
+          </div>
+          <p className="mb-4">独立開業スタートアップ講座 事務局</p>
+          <div className="flex justify-center gap-6 text-xs font-bold mb-8">
+             <a href="#" className="hover:text-red-500 transition-colors">利用規約</a>
+             <a href="#" className="hover:text-red-500 transition-colors">プライバシーポリシー</a>
+             <a href="#" className="hover:text-red-500 transition-colors">特定商取引法に基づく表記</a>
+          </div>
+          <p className="text-[10px] tracking-widest uppercase">© 2026 Independent Startup Course. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
